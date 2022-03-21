@@ -274,18 +274,18 @@ def doan():
         if quizemsg['scorePropor']!='100/100.0':
             doAnswer(paperId=quizemsg['paperId'], courseId=quizemsg['courseId'],classId=quizemsg['classId'])
 
-
-##########初始化##########
-login()
-getCourseMsg()
-#########################
-# getUserInfo()
-# getQuizeMsg()
-# getExamMsg()
-# getVideoMsg('2c9180827dc7c093017df98808ea5506')
-# doVideo()
-# getUserInfo()
-# getAnswers(paperId='1475279528973324290',courseId='2c9180827dc7c093017df98808ea5506')
-# doAnswer('1475279634531373058', '2c9180827dc7c093017df98808ea5506','2c9180827e52ded6017f0cc7389739e9')
-# doan()
+if __name__=="__main__":
+    ##########初始化##########
+    login()
+    getCourseMsg()
+    #########################
+    # getUserInfo()
+    # getQuizeMsg()
+    # getExamMsg()
+    # getVideoMsg('2c9180827dc7c093017df98808ea5506')
+    # doVideo()
+    # getUserInfo()
+    # getAnswers(paperId='1475279528973324290',courseId='2c9180827dc7c093017df98808ea5506')
+    # doAnswer('1475279634531373058', '2c9180827dc7c093017df98808ea5506','2c9180827e52ded6017f0cc7389739e9')
+    # doan()
 
