@@ -2,7 +2,7 @@ import requests
 import ddddocr
 import re
 import html
-
+# from rich import print
 '''
 脱机实现 zjooc 秒过章节内容和作业、测验、考试等。
 '''
@@ -110,6 +110,7 @@ def getQuizeMsg() -> list :
         'params[batchKey]':''
     }
     quizeMsgData = requests.get('https://www.zjooc.cn/ajax', params=params,cookies=cookie,headers=Headers).json()['data']
+
     global quizeMsgLst
     # quizeMsgLst=[]
     for i in range(len(quizeMsgData)):
@@ -127,7 +128,16 @@ def getQuizeMsg() -> list :
     return quizeMsgLst
 
 def getExamMsg() -> list :  
-    exameMsgData = requests.get('https://www.zjooc.cn/ajax?service=/tkksxt/api/admin/paper/student/page&params[pageNo]=1&params[pageSize]=20&params[paperType]=0&params[courseId]=&params[processStatus]=&params[batchKey]=',headers=Headers).json()['data']
+    params = {
+    'service':'/tkksxt/api/admin/paper/student/page',
+    'params[pageNo]':'1',
+    'params[pageSize]':'20',
+    'params[paperType]':'0',
+    'params[courseId]':'',
+    'params[processStatus]':'',
+    'params[batchKey]':''
+    }
+    exameMsgData = requests.get('https://www.zjooc.cn/ajax', params=params, cookies=cookie, headers=Headers).json()['data']
     global examMsgLst
     # examMsgLst=[]
     for i in range(len(exameMsgData)):
@@ -151,7 +161,7 @@ def getAnswers(paperId,courseId) -> dict :
     answesdata = {
     'service':'/tkksxt/api/student/score/scoreDetail',
     'body':'true',
-    'params[batchKey]':batchDict['courseId'],
+    'params[batchKey]':batchDict[courseId],
     'params[paperId]':paperId,
     'params[courseId]':courseId
     }
@@ -210,9 +220,9 @@ def doAnswer(paperId, courseId,classId) -> int :
     'params[paperId]':paperId,
     'params[courseId]':courseId,
     'params[classId]':classId,    
-    'params[batchKey]':batchDict['courseId'],
+    'params[batchKey]':batchDict[courseId],
     }
-    MsgData = requests.get('https://www.zjooc.cn/ajax',params=answesparams,headers=Headers).json()['data']
+    MsgData = requests.get('https://www.zjooc.cn/ajax',params=answesparams,cookies=cookie,headers=Headers).json()['data']
     # 提交答案
     #batchKey
     id = MsgData['id']
@@ -223,7 +233,7 @@ def doAnswer(paperId, courseId,classId) -> int :
     sendAnswerData = {       
     'service':'/tkksxt/api/student/score/sendSubmitAnswer',
     'body':'true',
-    'params[batchKey]':batchDict['courseId'],
+    'params[batchKey]':batchDict[courseId],
     'params[id]':id,
     'params[stuId]':stuId,
     'params[clazzId]':classId,
@@ -238,7 +248,7 @@ def doAnswer(paperId, courseId,classId) -> int :
         }
         sendAnswerData.update(qadic)
     print(sendAnswerData)
-    res = requests.post('https://www.zjooc.cn/ajax',data=sendAnswerData,headers=Headers).content.decode('utf-8')
+    res = requests.post('https://www.zjooc.cn/ajax',data=sendAnswerData,cookies=cookie,headers=Headers).content.decode('utf-8')
     print(res)
 
 def doVideo() -> int :
@@ -267,12 +277,27 @@ def doan():
     秒过测验、考试  作业还没搞
     '''
     for exammsg in examMsgLst:
-        if exammsg['scorePropor']!='100/100.0':
+        if exammsg['scorePropor'] != '100/100.0':
             doAnswer(paperId=exammsg['paperId'], courseId=exammsg['courseId'],classId=exammsg['classId'])
 
-    for quizemsg in range(len(quizeMsgLst)):
-        if quizemsg['scorePropor']!='100/100.0':
+    for quizemsg in examMsgLst:
+        if quizemsg['scorePropor'] != '100/100.0':
             doAnswer(paperId=quizemsg['paperId'], courseId=quizemsg['courseId'],classId=quizemsg['classId'])
+
+
+def getans():
+    '''
+    秒过测验、考试  作业还没搞
+    '''
+    for exammsg in examMsgLst:
+        if exammsg['scorePropor'] != '100/100.0':
+            getAnswers(paperId=exammsg['paperId'],courseId=exammsg['courseId'])
+
+
+    for quizemsg in examMsgLst:
+        if quizemsg['scorePropor'] != '100/100.0':
+            getAnswers(paperId=quizemsg['paperId'],courseId=quizemsg['courseId'])
+
 
 if __name__=="__main__":
     ##########初始化##########
@@ -281,11 +306,8 @@ if __name__=="__main__":
     #########################
     # getUserInfo()
     # getQuizeMsg()
-    # getExamMsg()
-    # getVideoMsg('2c9180827dc7c093017df98808ea5506')
+    getExamMsg()
     # doVideo()
-    # getUserInfo()
-    # getAnswers(paperId='1475279528973324290',courseId='2c9180827dc7c093017df98808ea5506')
-    # doAnswer('1475279634531373058', '2c9180827dc7c093017df98808ea5506','2c9180827e52ded6017f0cc7389739e9')
-    # doan()
+    getans()
+    doan()
 
