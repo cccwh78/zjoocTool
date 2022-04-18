@@ -171,13 +171,19 @@ def getAnswers(paperId,courseId) -> dict :
     return {andata['id']:andata['rightAnswer'] for andata in answerMsgData}
     
 def getVideoMsg(courseId) -> list:  
-    videoMsgData = requests.get('https://www.zjooc.cn/ajax?service=/jxxt/api/course/courseStudent/getStudentCourseChapters&params[pageNo]=1&params[courseId]='+courseId+'&params[urlNeed]=0',headers=Headers).json()['data']
+    # vdata = {
+    # 'service':'/jxxt/api/course/courseStudent/getStudentCourseChapters',
+    # 'params[pageNo]':'1',
+    # 'params[urlNeed]:':"batchDict[courseId]",
+    # 'params[courseId]':courseId
+    # }
+    videoMsgData = requests.get('https://www.zjooc.cn/ajax?service=/jxxt/api/course/courseStudent/getStudentCourseChapters&params[pageNo]=1&params[courseId]='+courseId+'&params[urlNeed]=0',cookies=cookie,headers=Headers).json()['data']
     global videoMsgLst
     global unvideoMsgLst
     # videoMsgLst=[]
     # unvideoMsgLst=[]
     x = 0
-    for videodata in range(len(videoMsgData)):
+    for videodata in videoMsgData:
         className = videodata['name']
         videoMsgData1 = videodata['children']
         for videodata1 in videoMsgData1:
@@ -255,6 +261,8 @@ def doVideo() -> int :
     '''
     秒过章节内容。
     '''
+    # 手动填入要做的video 的 courseid
+    getVideoMsg()
     for i in videoMsgLst:
         videoparams = {
         'service':'/learningmonitor/api/learning/monitor/videoPlaying',
@@ -264,11 +272,11 @@ def doVideo() -> int :
         'params[percent]':'100'
         }
         params = 'service=/learningmonitor/api/learning/monitor/videoPlaying&params[chapterId]='+i['chapterId']+'&params[courseId]='+i['courseId']+'&params[playTime]='+str(i['time'])+'&params[percent]=100'
-        res = requests.get('https://www.zjooc.cn/ajax?'+params,headers=Headers).json()
+        res = requests.get('https://www.zjooc.cn/ajax?'+params,cookies=cookie,headers=Headers).json()
         print(res)
     for n in unvideoMsgLst:
         params = 'service=/learningmonitor/api/learning/monitor/finishTextChapter&params[courseId]='+n['courseId']+'&params[chapterId]='+n['chapterId']
-        res = requests.get('https://www.zjooc.cn/ajax?'+params,headers=Headers).json()
+        res = requests.get('https://www.zjooc.cn/ajax?'+params,cookies=cookie,headers=Headers).json()
         print(res)
 
 
@@ -280,7 +288,7 @@ def doan():
         if exammsg['scorePropor'] != '100/100.0':
             doAnswer(paperId=exammsg['paperId'], courseId=exammsg['courseId'],classId=exammsg['classId'])
 
-    for quizemsg in examMsgLst:
+    for quizemsg in quizeMsgLst:
         if quizemsg['scorePropor'] != '100/100.0':
             doAnswer(paperId=quizemsg['paperId'], courseId=quizemsg['courseId'],classId=quizemsg['classId'])
 
@@ -305,9 +313,10 @@ if __name__=="__main__":
     getCourseMsg()
     #########################
     # getUserInfo()
+    # getVideoMsg("2c9180827dc7c093017df98808ea5506")
     # getQuizeMsg()
-    getExamMsg()
+    # getExamMsg()
     # doVideo()
-    getans()
-    doan()
+    # getans()
+    # doan()
 
