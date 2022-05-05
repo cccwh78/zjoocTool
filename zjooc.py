@@ -5,6 +5,9 @@ import html
 # from rich import print
 '''
 脱机实现 zjooc 秒过章节内容和作业、测验、考试等。
+
+
+感谢@Summmmmmary同学提醒，调用的ddddocr库必须运行在python 3.9 及以下.（我自己是3.9.8
 '''
 
 Headers = {
